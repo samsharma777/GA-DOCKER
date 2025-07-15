@@ -17,7 +17,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.REGION }}
+          aws-region: us-east-1
 
   build-and-push-pub-ecr:
     needs: build-to-AWSECR
@@ -31,7 +31,7 @@ jobs:
           username: ${{ secrets.ACCESS_KEY }}
           password: ${{ secrets.SECRET_ACCESS_KEY }}
         env:
-          aws-region: ${{ secrets.REGION }} 
+          aws-region: us-east-1 
 
       - name: Code Checkout
         uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
           username: ${{ secrets.ACCESS_KEY }}
           password: ${{ secrets.SECRET_ACCESS_KEY }}
         env:
-          aws-region: ${{ secrets.REGION }}
+          aws-region: us-east-1
 
       - name: Code Checkout
         uses: actions/checkout@v4
