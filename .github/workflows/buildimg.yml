@@ -1,0 +1,67 @@
+name: Build to AWS ECR
+
+on: push
+
+jobs:
+
+
+  build-to-AWSECR:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.REGION }}
+
+  build-and-push-pub-ecr:
+    needs: build-to-AWSECR
+    runs-on: ubuntu-latest
+    steps:
+   
+      - name: Login to Public ECR
+        uses: docker/login-action@v3
+        with: 
+          registry: public.ecr.aws
+          username: ${{ secrets.ACCESS_KEY }}
+          password: ${{ secrets.SECRET_ACCESS_KEY }}
+        env:
+          aws-region: ${{ secrets.REGION }} 
+
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Image
+        run: |
+          docker build -t react_pub .
+          docker tag react_pub:latest public.ecr.aws/v6m2z7m5/react_pub:v1
+          docker push public.ecr.aws/v6m2z7m5/react_pub:v1
+       
+
+  build-and-push-private-ecr:
+    needs: build-and-push-pub-ecr
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Login to Private ECR
+        uses: docker/login-action@v3
+        with:
+          registry: 798470206542.dkr.ecr.eu-west-1.amazonaws.com
+          username: ${{ secrets.ACCESS_KEY }}
+          password: ${{ secrets.SECRET_ACCESS_KEY }}
+        env:
+          aws-region: ${{ secrets.REGION }}
+
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Image
+        run: |
+          docker build -t react_private .
+          docker tag react_private:latest 798470206542.dkr.ecr.eu-west-1.amazonaws.com/react_private:v11
+          docker push 798470206542.dkr.ecr.eu-west-1.amazonaws.com/react_private:v11
